@@ -307,6 +307,7 @@ int main(int argc, char *argv[])
 	}
 
 	closesocket(inDNS);
+	closesocket(outDNS);
 	WSACleanup();
 
 	return 0;
