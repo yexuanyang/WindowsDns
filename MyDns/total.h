@@ -23,7 +23,7 @@
 #define BUFSIZE 1024 //dns message's max byte size
 
 //struct defination
-typedef struct {
+typedef struct HEADER {
 	unsigned id : 16;      /* query identification number */
 	unsigned qr : 1;       /* response flag */
 	unsigned opcode : 4;   /* purpose of message */
@@ -40,13 +40,13 @@ typedef struct {
 } HEADER;//dns message's header
 
 
-typedef struct {
+typedef struct QUESTION{
 	char qname[DNameMaxLen]; //name
 	unsigned qtype : 16;  //type
 	unsigned qclass : 16; //class
 } QUESTION;//dns message's question
 
-typedef struct {
+typedef struct RR{
 	char name[DNameMaxLen]; //name
 	unsigned RRtype : 16;  //type
 	unsigned RRclass : 16; //class 
@@ -55,7 +55,7 @@ typedef struct {
 	char *Rdata;
 } RR;//record resource
 
-typedef struct {
+typedef struct DNS_PACKET {
 	HEADER header;       //DNS header
 	QUESTION *questions; //questions
 	RR *AN;              //answer RR
@@ -73,7 +73,7 @@ typedef struct DNIPList {
 } DNIPList;//the list having head node, list stores temporary name-ip table
 
 
-typedef struct {
+typedef struct ID_TRANS_CELL {
 	unsigned short last_ID; /* The old id*/
 	BOOL done;          /*Mark whether the request was analysed completely*/
 	SOCKADDR_IN client; /*Requestor socket address*/
