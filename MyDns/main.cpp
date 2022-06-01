@@ -4,7 +4,7 @@
 int level = 0;                            //debug level
 ID_TRANS_CELL trans_table[ID_TRANS_SIZE]; /*The ID_TRANS_TABLE*/
 int trans_count = 0;                      /*The cells of trans_table now*/
-SOCKET inDNS, outDNS;
+SOCKET inDNS,outDNS;
 sockaddr_in local_name, extern_name;
 sockaddr_in client, extern_dns;
 int length_client = sizeof sockaddr_in;
@@ -255,11 +255,8 @@ int main(int argc, char *argv[])
 
 	inDNS = socket(AF_INET, SOCK_DGRAM, 0);
 	outDNS = socket(AF_INET, SOCK_DGRAM, 0);
-	if (inDNS < 0)
+	if (inDNS < 0 || outDNS<0)
 		printf("create socket failed! error code:%d",WSAGetLastError());
-	if(outDNS < 0)
-		printf("create socket failed! error code:%d",
-		       WSAGetLastError());
 	
 
 	Read_scheurl(local_dniplist, extern_dniplist);
@@ -283,12 +280,11 @@ int main(int argc, char *argv[])
 	}
 
 	int unblock = 1;
-	if(ioctlsocket(inDNS, FIONBIO, (u_long FAR *)&unblock))
-		printf("ioctlsocket failed! error code:%d\n",WSAGetLastError()); //本地套接字非阻塞
-	
-	if(ioctlsocket(outDNS, FIONBIO, (u_long FAR *)&unblock))
+	if (ioctlsocket(inDNS, FIONBIO, (u_long FAR *)&unblock) < 0 ||
+	    ioctlsocket(outDNS, FIONBIO, (u_long FAR *)&unblock) < 0)
 		printf("ioctlsocket failed! error code:%d\n",
-		       WSAGetLastError()); //外部套接字非阻塞
+		       WSAGetLastError()); //本地套接字非阻塞
+	
 	int reuse = 1;
 	if(setsockopt(
 		inDNS, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
@@ -296,9 +292,8 @@ int main(int argc, char *argv[])
 		printf("setsockopt failed! error code:%d\n",WSAGetLastError()); //SO_REUSEADDR允许在同一端口上启动同一服务器的多个实例
 	//SOL_SOCKET在套接字级别上设置选项
 	
-
-	if (bind(inDNS, (SOCKADDR *)&local_name, sizeof(SOCKADDR)) &&
-	    bind(outDNS, (SOCKADDR *)&extern_name, sizeof(SOCKADDR)) ) {
+	int in = bind(inDNS, (SOCKADDR *)&local_name, sizeof(SOCKADDR));
+	if ( in ) {
 		printf("ERROR! BIND FAILED! error code:%d\n",WSAGetLastError());
 		exit(1);
 	}else {
@@ -312,7 +307,6 @@ int main(int argc, char *argv[])
 	}
 
 	closesocket(inDNS);
-	closesocket(outDNS);
 	WSACleanup();
 
 	return 0;
